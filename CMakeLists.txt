@@ -30,6 +30,12 @@ file(GLOB cmsis_dsp_srcs
     "${ei_sdk_dir}/CMSIS/DSP/Source/SupportFunctions/*.c"
 )
 
+# Kiss FFT sources (for DSP functions)
+file(GLOB kiss_fft_srcs
+    "${ei_sdk_dir}/third_party/kissfft/*.c"
+    "${ei_sdk_dir}/third_party/kissfft/*.cpp"
+)
+
 # TensorFlow Lite Micro sources
 file(GLOB tflite_micro_srcs
     "${ei_sdk_dir}/tensorflow/lite/micro/*.cpp"
@@ -44,6 +50,26 @@ file(GLOB tflite_kernels_srcs
 file(GLOB tflite_core_srcs
     "${ei_sdk_dir}/tensorflow/lite/c/*.c"
     "${ei_sdk_dir}/tensorflow/lite/core/api/*.cpp"
+)
+
+file(GLOB tflite_micro_memory_srcs
+    "${ei_sdk_dir}/tensorflow/lite/micro/memory_planner/*.c"
+    "${ei_sdk_dir}/tensorflow/lite/micro/memory_planner/*.cpp"
+)
+
+file(GLOB tflite_micro_arena_srcs
+    "${ei_sdk_dir}/tensorflow/lite/micro/arena_allocator/*.c"
+    "${ei_sdk_dir}/tensorflow/lite/micro/arena_allocator/*.cpp"
+)
+
+file(GLOB tflite_kernels_internal_srcs
+    "${ei_sdk_dir}/tensorflow/lite/kernels/internal/*.c"
+    "${ei_sdk_dir}/tensorflow/lite/kernels/internal/*.cpp"
+)
+
+file(GLOB tflite_schema_srcs
+    "${ei_sdk_dir}/tensorflow/lite/schema/*.c"
+    "${ei_sdk_dir}/tensorflow/lite/schema/*.cpp"
 )
 
 # ESP-NN optimized kernels
@@ -67,6 +93,11 @@ set(lib_srcs
     ${tflite_core_srcs}
     ${esp_nn_srcs}
     ${model_srcs}
+    ${kiss_fft_srcs}                    # Add Kiss FFT
+    ${tflite_micro_memory_srcs}         # Add memory planners
+    ${tflite_micro_arena_srcs}          # Add arena allocators
+    ${tflite_kernels_internal_srcs}     # Add internal kernels
+    ${tflite_schema_srcs}
 )
 
 set(priv_req)
@@ -90,6 +121,7 @@ idf_component_register(
                  "edge-impulse-sdk/tensorflow"
                  "edge-impulse-sdk/tensorflow/lite"
                  "edge-impulse-sdk/tensorflow/lite/micro"
+		  "edge-impulse-sdk/third_party/kissfft"
                  "edge-impulse-sdk/CMSIS/Core/Include"
                  "edge-impulse-sdk/CMSIS/DSP/Include"
                  "edge-impulse-sdk/third_party/flatbuffers/include"

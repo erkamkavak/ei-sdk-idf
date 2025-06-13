@@ -32,8 +32,8 @@ file(GLOB cmsis_dsp_srcs
 
 # Kiss FFT sources (for DSP functions)
 file(GLOB kiss_fft_srcs
-    "${ei_sdk_dir}/third_party/kissfft/*.c"
-    "${ei_sdk_dir}/third_party/kissfft/*.cpp"
+    "${ei_sdk_dir}/dsp/kissfft/*.c"
+    "${ei_sdk_dir}/dsp/kissfft/*.cpp"
 )
 
 # TensorFlow Lite Micro sources
@@ -121,7 +121,7 @@ idf_component_register(
                  "edge-impulse-sdk/tensorflow"
                  "edge-impulse-sdk/tensorflow/lite"
                  "edge-impulse-sdk/tensorflow/lite/micro"
-		  "edge-impulse-sdk/third_party/kissfft"
+		  "edge-impulse-sdk/dsp/kissfft"
                  "edge-impulse-sdk/CMSIS/Core/Include"
                  "edge-impulse-sdk/CMSIS/DSP/Include"
                  "edge-impulse-sdk/third_party/flatbuffers/include"

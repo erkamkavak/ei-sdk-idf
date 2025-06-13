@@ -1,174 +1,186 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.5)
 
-# Set component name
-set(COMPONENT_NAME "ei_sdk")
+set(ei_sdk_dir "${CMAKE_CURRENT_SOURCE_DIR}/edge-impulse-sdk")
+set(tflite_model_dir "${CMAKE_CURRENT_SOURCE_DIR}/tflite-model")
 
-# Define all source files
-set(SRCS
-    # Edge Impulse SDK core files
-    "edge-impulse-sdk/classifier/ei_run_classifier.h"
-    "edge-impulse-sdk/dsp/numpy.hpp"
-    "edge-impulse-sdk/porting/ei_classifier_porting.h"
-    
-    # Model files
-    "model-parameters/model_metadata.h"
-    "model-parameters/model_variables.h"
-    "tflite-model/tflite_learn_43_compiled.cpp"
-    
-    # Kiss FFT sources (required for DSP)
-    "edge-impulse-sdk/dsp/kissfft/kiss_fft.c"
-    "edge-impulse-sdk/dsp/kissfft/tools/kiss_fftr.c"
-    
-    # TensorFlow Lite Micro core sources
-    "edge-impulse-sdk/tensorflow/lite/micro/micro_allocator.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/micro_context.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/micro_graph.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/micro_interpreter.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/micro_profiler.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/micro_resource_variable.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/micro_string.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/micro_time.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/micro_utils.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/recording_micro_allocator.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/system_setup.cc"
-    
-    # TensorFlow Lite Micro memory management
-    "edge-impulse-sdk/tensorflow/lite/micro/memory_planner/greedy_memory_planner.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/memory_planner/linear_memory_planner.cc"
-    
-    # TensorFlow Lite Micro kernels (operators)
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/conv.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/fully_connected.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/pooling.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/reshape.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/softmax.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/activations.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/add.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/arg_min_max.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/batch_to_space_nd.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/cast.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/ceil.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/circular_buffer.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/comparisons.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/concatenation.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/conv_common.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/cumsum.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/depth_to_space.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/depthwise_conv.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/depthwise_conv_common.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/dequantize.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/detection_postprocess.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/elementwise.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/elu.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/ethosu.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/exp.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/expand_dims.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/fill.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/floor.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/floor_div.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/floor_mod.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/gather.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/gather_nd.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/hard_swish.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/if.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/kernel_runner.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/kernel_util.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/l2norm.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/l2_pool_2d.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/leaky_relu.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/logical.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/logistic.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/maximum_minimum.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/mul.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/neg.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/pack.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/pad.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/prelu.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/quantize.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/quantize_common.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/reduce.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/resize_bilinear.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/resize_nearest_neighbor.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/round.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/shape.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/slice.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/space_to_batch_nd.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/space_to_depth.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/split.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/split_v.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/squeeze.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/strided_slice.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/sub.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/svdf.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/svdf_common.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/tanh.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/transpose.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/transpose_conv.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/unpack.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/kernels/zeros_like.cc"
-    
-    # TensorFlow Lite core files
-    "edge-impulse-sdk/tensorflow/lite/core/api/error_reporter.cc"
-    "edge-impulse-sdk/tensorflow/lite/core/api/flatbuffer_conversions.cc"
-    "edge-impulse-sdk/tensorflow/lite/core/api/op_resolver.cc"
-    "edge-impulse-sdk/tensorflow/lite/core/api/tensor_utils.cc"
-    "edge-impulse-sdk/tensorflow/lite/kernels/internal/quantization_util.cc"
-    "edge-impulse-sdk/tensorflow/lite/kernels/kernel_util.cc"
-    "edge-impulse-sdk/tensorflow/lite/schema/schema_utils.cc"
-    
-    # Additional TensorFlow Lite Micro files
-    "edge-impulse-sdk/tensorflow/lite/c/common.c"
-    "edge-impulse-sdk/tensorflow/lite/micro/arena_allocator/single_arena_buffer_allocator.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/tflite_bridge/micro_error_reporter.cc"
-    "edge-impulse-sdk/tensorflow/lite/micro/tflite_bridge/flatbuffer_conversions_bridge.cc"
+# Core Edge Impulse SDK sources
+file(GLOB ei_classifier_srcs
+    "${ei_sdk_dir}/classifier/*.cpp"
+    "${ei_sdk_dir}/classifier/*.c"
 )
 
-# Define include directories
-set(INCLUDE_DIRS
-    "."
-    "edge-impulse-sdk"
-    "edge-impulse-sdk/third_party/flatbuffers/include"
-    "edge-impulse-sdk/third_party/gemmlowp"
-    "edge-impulse-sdk/third_party/ruy"
-    "edge-impulse-sdk/tensorflow/lite/micro/tools/make/downloads/flatbuffers/include"
-    "model-parameters"
-    "tflite-model"
+file(GLOB ei_dsp_srcs
+    "${ei_sdk_dir}/dsp/*.cpp"
+    "${ei_sdk_dir}/dsp/*.c"
 )
 
-# Define preprocessor definitions
-set(COMPILE_DEFINITIONS
-    "EI_CLASSIFIER_TFLITE_ENABLE_ESP_NN=1"
-    "EI_CLASSIFIER_TFLITE_ENABLE_CMSIS_NN=0"
-    "TF_LITE_DISABLE_X86_NEON=1"
-    "TF_LITE_STATIC_MEMORY=1"
-    "TF_LITE_MCU_DEBUG_LOG=1"
-    "EIDSP_USE_CMSIS_DSP=0"
-    "EIDSP_LOAD_CMSIS_DSP_SOURCES=0"
-    "EI_PORTING_ESP32=1"
-    "__STATIC_FORCEINLINE=static inline"
+# Porting layer for Espressif
+file(GLOB ei_porting_srcs
+    "${ei_sdk_dir}/porting/espressif/*.cpp"
+    "${ei_sdk_dir}/porting/espressif/*.c"
 )
 
-# Register the component
+# CMSIS DSP sources (selective)
+file(GLOB cmsis_dsp_srcs
+    "${ei_sdk_dir}/CMSIS/DSP/Source/BasicMathFunctions/*.c"
+    "${ei_sdk_dir}/CMSIS/DSP/Source/FastMathFunctions/*.c"
+    "${ei_sdk_dir}/CMSIS/DSP/Source/StatisticsFunctions/*.c"
+    "${ei_sdk_dir}/CMSIS/DSP/Source/TransformFunctions/*.c"
+    "${ei_sdk_dir}/CMSIS/DSP/Source/CommonTables/*.c"
+    "${ei_sdk_dir}/CMSIS/DSP/Source/SupportFunctions/*.c"
+)
+
+# Kiss FFT sources (for DSP functions)
+file(GLOB kiss_fft_srcs
+    "${ei_sdk_dir}/dsp/kissfft/*.c"
+    "${ei_sdk_dir}/dsp/kissfft/*.cc"
+    "${ei_sdk_dir}/dsp/kissfft/*.cpp"
+)
+
+# TensorFlow Lite Micro sources
+file(GLOB tflite_micro_srcs
+    "${ei_sdk_dir}/tensorflow/lite/micro/*.cpp"
+    "${ei_sdk_dir}/tensorflow/lite/micro/*.c"
+    "${ei_sdk_dir}/tensorflow/lite/micro/*.cc"
+)
+
+file(GLOB tflite_kernels_srcs
+    "${ei_sdk_dir}/tensorflow/lite/micro/kernels/*.cpp"
+    "${ei_sdk_dir}/tensorflow/lite/micro/kernels/*.c"
+    "${ei_sdk_dir}/tensorflow/lite/micro/kernels/*.cc"
+)
+
+file(GLOB tflite_core_srcs
+    "${ei_sdk_dir}/tensorflow/lite/c/*.c"
+    "${ei_sdk_dir}/tensorflow/lite/c/*.cc"
+    "${ei_sdk_dir}/tensorflow/lite/core/api/*.cpp"
+)
+
+file(GLOB tflite_micro_memory_srcs
+    "${ei_sdk_dir}/tensorflow/lite/micro/memory_planner/*.c"
+    "${ei_sdk_dir}/tensorflow/lite/micro/memory_planner/*.cc"    
+    "${ei_sdk_dir}/tensorflow/lite/micro/memory_planner/*.cpp"
+)
+
+file(GLOB tflite_micro_arena_srcs
+    "${ei_sdk_dir}/tensorflow/lite/micro/arena_allocator/*.c"
+    "${ei_sdk_dir}/tensorflow/lite/micro/arena_allocator/*.cc"
+    "${ei_sdk_dir}/tensorflow/lite/micro/arena_allocator/*.cpp"
+)
+
+file(GLOB tflite_kernels_internal_srcs
+    "${ei_sdk_dir}/tensorflow/lite/kernels/internal/*.c"
+    "${ei_sdk_dir}/tensorflow/lite/kernels/internal/*.cc"
+    "${ei_sdk_dir}/tensorflow/lite/kernels/internal/*.cpp"
+)
+
+file(GLOB tflite_schema_srcs
+    "${ei_sdk_dir}/tensorflow/lite/schema/*.c"
+    "${ei_sdk_dir}/tensorflow/lite/schema/*.cc"
+    "${ei_sdk_dir}/tensorflow/lite/schema/*.cpp"
+)
+
+# ESP-NN optimized kernels
+file(GLOB esp_nn_srcs
+    "${ei_sdk_dir}/porting/espressif/ESP-NN/src/*.cpp"
+    "${ei_sdk_dir}/porting/espressif/ESP-NN/src/*.c"
+    "${ei_sdk_dir}/porting/espressif/ESP-NN/src/*.cc"
+)
+
+# <<< MODIFIED: Add glob for the TFLite model files
+file(GLOB model_srcs
+    "${tflite_model_dir}/*.cpp"
+)
+
+set(lib_srcs
+    ${ei_classifier_srcs}
+    ${ei_dsp_srcs}
+    ${ei_porting_srcs}
+    ${cmsis_dsp_srcs}
+    ${tflite_micro_srcs}
+    ${tflite_kernels_srcs}
+    ${tflite_core_srcs}
+    ${esp_nn_srcs}
+    ${model_srcs}
+    ${kiss_fft_srcs}                    # Add Kiss FFT
+    ${tflite_micro_memory_srcs}         # Add memory planners
+    ${tflite_micro_arena_srcs}          # Add arena allocators
+    ${tflite_kernels_internal_srcs}     # Add internal kernels
+    ${tflite_schema_srcs}
+)
+
+set(priv_req)
+
+# Include component requirements which were introduced after IDF version 4.1
+if("${IDF_VERSION_MAJOR}.${IDF_VERSION_MINOR}" VERSION_GREATER "4.1")
+    list(APPEND priv_req esp_timer driver)
+endif()
+
 idf_component_register(
-    SRCS ${SRCS}
-    INCLUDE_DIRS ${INCLUDE_DIRS}
-    REQUIRES "esp_common" "freertos" "esp_timer" "esp_system"
+    SRCS "${lib_srcs}"
+    # By including ".", you allow the compiler to find headers from the component's root.
+    # This is correct, as the SDK and your model headers use paths relative to the root,
+    # e.g., "edge-impulse-sdk/classifier/ei_model_types.h" and "model-parameters/model_metadata.h".
+    INCLUDE_DIRS "."
+                 "edge-impulse-sdk"
+                 "edge-impulse-sdk/classifier"
+                 "edge-impulse-sdk/dsp"
+                 "edge-impulse-sdk/porting"
+                 "edge-impulse-sdk/porting/espressif"
+                 "edge-impulse-sdk/tensorflow"
+                 "edge-impulse-sdk/tensorflow/lite"
+                 "edge-impulse-sdk/tensorflow/lite/micro"
+		  "edge-impulse-sdk/dsp/kissfft"
+                 "edge-impulse-sdk/CMSIS/Core/Include"
+                 "edge-impulse-sdk/CMSIS/DSP/Include"
+                 "edge-impulse-sdk/third_party/flatbuffers/include"
+                 "edge-impulse-sdk/third_party/gemmlowp"
+                 "edge-impulse-sdk/third_party/ruy"
+    REQUIRES esp-nn
+    PRIV_REQUIRES ${priv_req}
 )
 
-# Add compile definitions
-target_compile_definitions(${COMPONENT_LIB} PRIVATE ${COMPILE_DEFINITIONS})
-
-# Set C++ standard
-target_compile_features(${COMPONENT_LIB} PRIVATE cxx_std_11)
-
-# Add compiler flags for optimization and compatibility
+# Reduce the level of paranoia to be able to compile Edge Impulse sources
 target_compile_options(${COMPONENT_LIB} PRIVATE
-    $<$<COMPILE_LANGUAGE:CXX>:-std=c++11>
-    $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
-    $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
-    $<$<COMPILE_LANGUAGE:CXX>:-fno-threadsafe-statics>
-    $<$<COMPILE_LANGUAGE:CXX>:-fmessage-length=0>
-    $<$<COMPILE_LANGUAGE:CXX>:-DTF_LITE_STATIC_MEMORY>
-    $<$<COMPILE_LANGUAGE:CXX>:-DTF_LITE_DISABLE_X86_NEON>
-    $<$<COMPILE_LANGUAGE:C>:-std=c99>
-) 
+    -Wno-error=attributes
+    -Wno-error=shadow
+    -Wno-maybe-uninitialized
+    -Wno-missing-field-initializers
+    -Wno-error=sign-compare
+    -Wno-error=double-promotion
+    -Wno-type-limits
+    -Wno-unused-function
+    -Wno-unused-variable
+    -Wno-unused-but-set-variable
+)
+
+if("${IDF_VERSION_MAJOR}.${IDF_VERSION_MINOR}" VERSION_GREATER_EQUAL "5.0")
+    target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-error=stringop-overread)
+endif()
+
+# Enable ESP-NN optimizations by Espressif
+target_compile_options(${COMPONENT_LIB} PRIVATE -DESP_NN)
+
+set(common_flags
+    -DEI_CLASSIFIER_SENSOR=EI_CLASSIFIER_SENSOR_MICROPHONE # <<< MODIFIED: Added this define from __init__.py
+    -DEI_PORTING_ESPRESSIF=1
+    -DEIDSP_USE_CMSIS_DSP=1
+    -DEI_CLASSIFIER_TFLITE_ENABLE_ESP_NN=1
+    -DTF_LITE_STATIC_MEMORY=1
+    -DTF_LITE_STRIP_ERROR_STRINGS=1
+    -DTF_LITE_DISABLE_X86_NEON
+    -DNDEBUG=1
+    -O3
+    -ffunction-sections
+    -fdata-sections
+    -fno-unwind-tables
+    -fmessage-length=0
+)
+
+target_compile_options(${COMPONENT_LIB} PRIVATE ${common_flags})
+target_compile_options(${COMPONENT_LIB} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:
+    -std=c++11 -fno-rtti -fno-exceptions -fno-threadsafe-statics -std=gnu++14>)
+
+target_compile_options(${COMPONENT_LIB} INTERFACE -DTF_LITE_STATIC_MEMORY)
+target_link_libraries(${COMPONENT_LIB} PRIVATE -lm)
+

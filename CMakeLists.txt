@@ -50,6 +50,12 @@ file(GLOB tflite_kernels_srcs
     "${ei_sdk_dir}/tensorflow/lite/micro/kernels/*.cc"
 )
 
+file(GLOB tflite_kernels_util_srcs
+    "${ei_sdk_dir}/tensorflow/lite/kernels/*.c"
+    "${ei_sdk_dir}/tensorflow/lite/kernels/*.cc"
+    "${ei_sdk_dir}/tensorflow/lite/kernels/*.cpp"
+)
+
 file(GLOB tflite_core_srcs
     "${ei_sdk_dir}/tensorflow/lite/c/*.c"
     "${ei_sdk_dir}/tensorflow/lite/c/*.cc"
@@ -107,6 +113,7 @@ set(lib_srcs
     ${tflite_micro_arena_srcs}          # Add arena allocators
     ${tflite_kernels_internal_srcs}     # Add internal kernels
     ${tflite_schema_srcs}
+    ${tflite_kernels_util_srcs}
 )
 
 set(priv_req)
@@ -132,6 +139,8 @@ idf_component_register(
                  "edge-impulse-sdk/tensorflow/lite/core/c"                 
                  "edge-impulse-sdk/tensorflow/lite/kernels"
                  "edge-impulse-sdk/tensorflow/lite/micro"
+                 "edge-impulse-sdk/tensorflow/lite/micro/kernels"
+                 "edge-impulse-sdk/tensorflow/lite/micro/memory_planner"                 
 		  "edge-impulse-sdk/dsp/kissfft"
                  "edge-impulse-sdk/CMSIS/Core/Include"
                  "edge-impulse-sdk/CMSIS/DSP/Include"

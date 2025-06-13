@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 set(ei_sdk_dir "${CMAKE_CURRENT_SOURCE_DIR}/edge-impulse-sdk")
+set(tflite_model_dir "${CMAKE_CURRENT_SOURCE_DIR}/tflite-model")
 
 # Core Edge Impulse SDK sources
 file(GLOB ei_classifier_srcs
@@ -51,6 +52,11 @@ file(GLOB esp_nn_srcs
     "${ei_sdk_dir}/porting/espressif/ESP-NN/src/*.c"
 )
 
+# <<< MODIFIED: Add glob for the TFLite model files
+file(GLOB model_srcs
+    "${tflite_model_dir}/*.cpp"
+)
+
 set(lib_srcs
     ${ei_classifier_srcs}
     ${ei_dsp_srcs}
@@ -60,6 +66,7 @@ set(lib_srcs
     ${tflite_kernels_srcs}
     ${tflite_core_srcs}
     ${esp_nn_srcs}
+    ${model_srcs}
 )
 
 set(priv_req)
@@ -71,6 +78,9 @@ endif()
 
 idf_component_register(
     SRCS "${lib_srcs}"
+    # By including ".", you allow the compiler to find headers from the component's root.
+    # This is correct, as the SDK and your model headers use paths relative to the root,
+    # e.g., "edge-impulse-sdk/classifier/ei_model_types.h" and "model-parameters/model_metadata.h".
     INCLUDE_DIRS "."
                  "edge-impulse-sdk"
                  "edge-impulse-sdk/classifier"
@@ -110,7 +120,8 @@ endif()
 # Enable ESP-NN optimizations by Espressif
 target_compile_options(${COMPONENT_LIB} PRIVATE -DESP_NN)
 
-set(common_flags 
+set(common_flags
+    -DEI_CLASSIFIER_SENSOR=EI_CLASSIFIER_SENSOR_MICROPHONE # <<< MODIFIED: Added this define from __init__.py
     -DEI_PORTING_ESPRESSIF=1
     -DEIDSP_USE_CMSIS_DSP=1
     -DEI_CLASSIFIER_TFLITE_ENABLE_ESP_NN=1
@@ -131,3 +142,4 @@ target_compile_options(${COMPONENT_LIB} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:
 
 target_compile_options(${COMPONENT_LIB} INTERFACE -DTF_LITE_STATIC_MEMORY)
 target_link_libraries(${COMPONENT_LIB} PRIVATE -lm)
+

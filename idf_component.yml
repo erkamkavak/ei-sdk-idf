@@ -1,0 +1,7 @@
+version: "0.1.0"
+description: "Edge Impulse inference SDK for ESP-IDF"
+targets:
+  - esp32
+dependencies:
+  idf: ">=4.4"
+

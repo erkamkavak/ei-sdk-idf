@@ -129,6 +129,8 @@ idf_component_register(
                  "edge-impulse-sdk/porting/espressif"
                  "edge-impulse-sdk/tensorflow"
                  "edge-impulse-sdk/tensorflow/lite"
+                 "edge-impulse-sdk/tensorflow/lite/core/c"                 
+                 "edge-impulse-sdk/tensorflow/lite/kernels"
                  "edge-impulse-sdk/tensorflow/lite/micro"
 		  "edge-impulse-sdk/dsp/kissfft"
                  "edge-impulse-sdk/CMSIS/Core/Include"
